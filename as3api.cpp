@@ -89,6 +89,24 @@ void WebP_decode()
     AS3_DeclareVar(as3_height, int);  // C::height => AS3
     AS3_CopyScalarToVar(as3_height, height);
 
+#if 0
+    inline_as3("\
+      var ba:ByteArray = new ByteArray();                     \
+      CModule.readBytes(as3_dst, as3_width*as3_height*4, ba); \
+      ba.position = 0;                                        \
+      result = new BitmapData(as3_width, as3_height, true);   \
+      for (var y:int = 0; y < as3_height; y++) {      \
+        for (var x:int = 0; x < as3_width; x++) {     \
+          var offset:int = (y * as3_width + x) * 4;   \
+          var pixel:int = 0xff000000;         \
+          pixel |= ba[offset + 1] << 16;     \
+          pixel |= ba[offset + 2] << 8;     \
+          pixel |= ba[offset + 3];           \
+          result.setPixel32(x, y, pixel);     \
+        } \
+      }   \
+    ");
+#else
     inline_as3("\
       var ba:ByteArray = new ByteArray();                     \
       CModule.readBytes(as3_dst, as3_width*as3_height*4, ba); \
@@ -97,6 +115,7 @@ void WebP_decode()
       var rect:Rectangle = new Rectangle(0, 0, as3_width-1, as3_height-1); \
       result.setPixels(rect, ba); \
     ");
+#endif
     free(dst);
   }
   AS3_ReturnAS3Var(result);
