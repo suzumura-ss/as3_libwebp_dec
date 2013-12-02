@@ -73,7 +73,7 @@ void WebP_decode()
   // decode
   int width = 0;
   int height = 0;
-  uint8_t* dst = WebPDecodeRGB(src, src_length, &width, &height);
+  uint8_t* dst = WebPDecodeARGB(src, src_length, &width, &height);
   inline_as3("CModule.free(as3_data);\n");
 
   // build result
@@ -91,18 +91,11 @@ void WebP_decode()
 
     inline_as3("\
       var ba:ByteArray = new ByteArray();                     \
-      CModule.readBytes(as3_dst, as3_width*as3_height*3, ba); \
+      CModule.readBytes(as3_dst, as3_width*as3_height*4, ba); \
+      ba.position = 0;                                        \
       result = new BitmapData(as3_width, as3_height, true);   \
-      for (var y:int = 0; y < as3_height; y++) {      \
-        for (var x:int = 0; x < as3_width; x++) {     \
-          var offset:int = (y * as3_width + x) * 3;   \
-          var pixel:int = 0xff000000;         \
-          pixel |=  ba[offset] << 16;         \
-          pixel |= (ba[offset + 1] << 8);     \
-          pixel |=  ba[offset + 2];           \
-          result.setPixel32(x, y, pixel);     \
-        } \
-      }   \
+      var rect:Rectangle = new Rectangle(0, 0, as3_width-1, as3_height-1); \
+      result.setPixels(rect, ba); \
     ");
     free(dst);
   }

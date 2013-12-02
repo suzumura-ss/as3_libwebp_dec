@@ -12,6 +12,8 @@ BASE = $(LIBNAME)/src
 LIBSRC = $(foreach s,$(DEC_SRC),$(BASE)/dec/$s) \
          $(foreach s,$(UTIL_SRC),$(BASE)/utils/$s) \
          $(foreach s,$(DSP_SRC),$(BASE)/dsp/$s)
+LIBOBJ = $(DEC_SRC:.c=.o) $(UTIL_SRC:.c=.o) $(DSP_SRC:.c=.o)
+DECLIB = libWebpDec.a
 
 TARGET = libWebpDec.swc
 
@@ -30,11 +32,18 @@ all: $(TARGET)
 
 .PHONY: clean
 clean:
-	rm -f *.swf *.swc *.as3 *.abc
+	rm -f *.swf *.swc *.as3 *.abc *.o
+	rm -f $(DECLIB)
 	rm -rf $(LIBNAME) $(LIBNAME).tar.gz
 
-$(TARGET): check extract $(SRC)
-	"$(FLASCC)/usr/bin/gcc" $(CFLAGS) -O4 $(LIBSRC) $(SRC) -emit-swc=info.smoche.libWebp.Decode -lFlash++ -lAS3++ -o $@
+
+$(TARGET): $(SRC) $(DECLIB)
+	"$(FLASCC)/usr/bin/gcc" $(CFLAGS) -O4 $(SRC) $(DECLIB) -emit-swc=info.smoche.libWebp.Decode -lFlash++ -lAS3++ -o $@
+
+$(DECLIB): check extract
+	"$(FLASCC)/usr/bin/gcc" $(CFLAGS) -O4 -c $(LIBSRC)
+	"$(FLASCC)/usr/bin/ar" -r -c $(DECLIB) $(LIBOBJ)
+	@rm -f $(LIBOBJ) 
 
 .PHONY: extract
 extract:
