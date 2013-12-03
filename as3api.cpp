@@ -112,7 +112,7 @@ void WebP_decode()
       CModule.readBytes(as3_dst, as3_width*as3_height*4, ba); \
       ba.position = 0;                                        \
       result = new BitmapData(as3_width, as3_height, true);   \
-      var rect:Rectangle = new Rectangle(0, 0, as3_width-1, as3_height-1); \
+      var rect:Rectangle = new Rectangle(0, 0, as3_width, as3_height); \
       result.setPixels(rect, ba); \
     ");
 #endif
